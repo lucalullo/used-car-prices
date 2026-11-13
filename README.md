@@ -1,153 +1,132 @@
-
 # Used Car Prices
 
-**Predicting used car prices with LightGBM - combining feature engineering, target transformation, and gradient boosting for tabular regression.**
+**Used car price prediction with LightGBM, engineered vehicle features, and a logarithmic target transformation.**
 
-This project implements an end-to-end machine learning workflow, from cleaning and transforming vehicle data to training and tuning a LightGBM regression model.
+This Kaggle notebook develops a tabular regression workflow, from cleaning vehicle specifications to validating a gradient-boosted model and generating competition predictions.
 
-[![Kaggle Notebook](https://img.shields.io/badge/Kaggle-Notebook-20BEFF?logo=kaggle&logoColor=white)](https://www.kaggle.com/code/lucalullo/used-car-prices)
-![Python](https://img.shields.io/badge/Python-3.x-3776AB?logo=python&logoColor=white)
-![Jupyter Notebook](https://img.shields.io/badge/Jupyter-Notebook-F37626?logo=jupyter&logoColor=white)
-![pandas](https://img.shields.io/badge/pandas-Data_Processing-150458?logo=pandas&logoColor=white)
-![LightGBM](https://img.shields.io/badge/LightGBM-Gradient_Boosting-02569B)
-![scikit-learn](https://img.shields.io/badge/scikit--learn-Model_Selection-F7931E?logo=scikitlearn&logoColor=white)
+![Python](https://img.shields.io/badge/Python-3776AB?logo=python&logoColor=white) ![Jupyter](https://img.shields.io/badge/Jupyter-Notebook-F37626?logo=jupyter&logoColor=white) ![LightGBM](https://img.shields.io/badge/LightGBM-Regression-02569B) [![Kaggle Notebook](https://img.shields.io/badge/Kaggle-Notebook-20BEFF?logo=kaggle&logoColor=white)](https://www.kaggle.com/code/lucalullo/used-car-prices)
 
-**[View the original Kaggle notebook](https://www.kaggle.com/code/lucalullo/used-car-prices)** | **[Explore the notebook](used-car-prices.ipynb)** | **[Author's GitHub](https://github.com/lucalullo)**
-
----
+[Kaggle notebook](https://www.kaggle.com/code/lucalullo/used-car-prices) · [Explore the notebook](used-car-prices.ipynb) · [GitHub profile](https://github.com/lucalullo)
 
 ## At a glance
 
 | | |
 |---|---|
-| **Task** | Regression: used car price prediction |
-| **Platform** | Kaggle |
+| **Task** | Regression: used car selling price |
+| **Competition** | Kaggle Playground Series, Season 4 Episode 9 |
 | **Model** | LightGBM Regressor |
-| **Approach** | Gradient boosting with feature engineering and target transformation |
-| **Feature processing** | Missing values, text standardization, numerical transformations, categorical encoding |
-| **Target transformation** | `log1p` for training, `expm1` for inverse transformation |
-| **Model selection** | Hyperparameter tuning and early stopping |
+| **Validation** | 80/20 train/validation split; mean absolute error (MAE) on original price scale; target encoding fitted before the split |
+| **Recorded validation MAE** | **17,374** (notebook output; in the target's price units) |
+| **Feature engineering** | Vehicle age, engine horsepower, displacement, cylinder count, categorical attributes |
+| **Target** | `log1p` for model fitting; `expm1` for predictions |
 | **Core libraries** | pandas, NumPy, scikit-learn, LightGBM |
-| **Environment** | Python and Jupyter Notebook |
+| **Data** | Kaggle competition train/test CSVs (not redistributed) |
 
-## Why this project matters
+## Project overview
 
-This is a **feature-engineering-focused regression experiment**: the emphasis is on converting heterogeneous vehicle information into useful predictive features and applying gradient boosting to estimate used car prices.
+This is a **feature-engineering-focused regression experiment**. Vehicle descriptions are converted into structured signals, missing numerical values are imputed, and LightGBM learns nonlinear relationships between vehicle characteristics and prices.
 
 The notebook covers:
 
-- **Data cleaning:** handling missing values, standardizing text fields, and extracting structured information from raw vehicle data.
-- **Feature engineering:** creating additional variables such as vehicle age (`age`) and horsepower (`hp`).
-- **Numerical transformations:** applying logarithmic transformations to skewed numerical features.
-- **Categorical encoding:** preparing categorical vehicle attributes for regression modeling.
-- **Target transformation:** using `log1p` on sale prices and `expm1` to return predictions to the original price scale.
-- **Gradient boosting:** training a LightGBM Regressor with hyperparameter tuning and early stopping.
+- **Data preparation:** standardizing fields such as accident history and title status.
+- **Feature engineering:** extracting horsepower, engine displacement and cylinder count, and computing vehicle age.
+- **Missing values:** imputing selected numerical features with `IterativeImputer`.
+- **Encoding and transformations:** target-mean encoding categorical variables using the full labeled dataset and applying logarithmic transformations to selected numerical variables.
+- **Model training:** fitting LightGBM on log-transformed prices with validation-based early stopping.
+- **Submission:** refitting on the full training set and exporting `submission.csv`.
 
-## Approach
+## Methodology
 
 ```text
-Used car dataset
+Kaggle train/test data
         |
         v
-Data cleaning and text standardization
+Cleaning + vehicle feature extraction
         |
         v
-Feature engineering
+Missing-value imputation + target encoding
+(using all labeled rows)
         |
         v
-Numerical transformations
+Numerical and target transformations
         |
         v
-Categorical encoding
+Train/validation split
         |
         v
-Target transformation (log1p)
+LightGBM + early stopping
         |
         v
-LightGBM regression
+Validation MAE on original price scale
         |
         v
-Hyperparameter tuning + early stopping
+Refit on all labeled rows
         |
         v
-Inverse transformation (expm1)
-        |
-        v
-Predicted car prices
+Predict test set -> submission.csv
 ```
 
 ### Implementation details
 
-| Component | Notebook approach |
+| Component | Notebook implementation |
 |---|---|
-| Missing values | Data cleaning and missing value handling |
-| Text features | Standardization and extraction of structured information |
-| Engineered features | Vehicle age (`age`) and horsepower (`hp`) |
-| Numerical features | Logarithmic transformations for skewed variables |
-| Categorical features | Encoding of vehicle attributes |
-| Target | Logarithmic transformation with `log1p` |
-| Model | LightGBM Regressor |
-| Model optimization | Hyperparameter tuning and early stopping |
-| Prediction output | Inverse transformation with `expm1` |
+| Validation | `train_test_split(test_size=0.2, random_state=42)` |
+| Imputation | `IterativeImputer` for selected numerical features, fitted before the validation split |
+| Categorical encoding | Target-mean encoding computed from all labeled rows before the split |
+| Base model | `LGBMRegressor(max_depth=10, learning_rate=0.008, n_estimators=8000, min_child_samples=50)` |
+| Early stopping | 50 rounds without validation improvement |
+| Final model | Refit on all labeled rows with number of trees derived from the best iteration |
+| Evaluation | MAE after `expm1` converts predictions and targets to the original scale |
 
-The workflow focuses on a single gradient boosting approach rather than a systematic comparison of multiple regression algorithms.
+The notebook uses manually specified model settings and early stopping. It **does not demonstrate a systematic hyperparameter search** or comparative benchmark against other regressors.
 
-## Modeling approach
+## Results
 
-The project uses **LightGBM**, a gradient boosting framework designed for efficient learning on structured tabular data.
+> **Recorded validation MAE: 17,374** (in the original target units).
 
-A central modeling choice is the logarithmic transformation of the target variable:
+This value is printed in the archived notebook after an 80/20 holdout evaluation. **It should not be treated as an unbiased validation estimate:** category-wise target means are computed on all labeled rows before splitting, allowing validation targets to influence encoded validation features. The imputer is also fitted before splitting. It is **not a Kaggle leaderboard score** and does not establish performance on other used car markets.
 
-- **Training:** `log1p(price)` transforms the target before model fitting.
-- **Prediction:** `expm1(prediction)` converts model outputs back to the original price scale.
-
-This approach is intended to handle the skewed distribution commonly found in price data. Its effectiveness depends on the dataset and validation results.
-
-Hyperparameter tuning and early stopping are used to control model complexity and reduce the risk of overfitting.
-
-[Explore the original Kaggle notebook](https://www.kaggle.com/code/lucalullo/used-car-prices).
-
-## Repository contents
+## Repository structure
 
 ```text
-Used-car-prices/
+used-car-prices/
 ├── README.md
-└── used-car-prices.ipynb
+├── used-car-prices.ipynb
+├── .gitignore
+└── LICENSE
 ```
 
-The notebook contains the original data preparation, feature engineering, target transformation, and LightGBM modeling workflow.
+## Getting started
 
-## Run the notebook
+The reference environment is **Kaggle**. The notebook reads the competition files from:
 
-The reference project is available on **Kaggle**, where the notebook can be explored in its original environment.
+```text
+/kaggle/input/competitions/playground-series-s4e9/
+```
 
-To run it locally, install the required dependencies:
+For local execution, install the principal notebook dependencies:
 
 ```bash
 python -m pip install pandas numpy scikit-learn lightgbm matplotlib seaborn jupyter
 ```
 
-Then open `used-car-prices.ipynb` in Jupyter and make the required dataset available.
+Download the competition train/test CSVs, open `used-car-prices.ipynb`, and update the Kaggle-specific input paths to the local data directory. The notebook writes a `submission.csv` file.
 
-**Local execution may require updating dataset paths inside the notebook** to match the location of the downloaded files.
+## Limitations
 
-## Scope and limitations
-
-- The project focuses on **LightGBM regression**, not a systematic comparison against alternative machine learning algorithms.
-- Feature engineering and preprocessing decisions are tailored to the available vehicle data.
-- The logarithmic target transformation changes the scale on which the model is trained; predictions require inverse transformation to recover price estimates.
-- Hyperparameter tuning and early stopping do not eliminate the possibility of overfitting.
-- Performance on different vehicle markets or datasets is not established by the original project description.
-- No numerical Kaggle evaluation score is documented in the supplied README.
+- This repository preserves a notebook experiment, not a packaged prediction service.
+- **Target leakage in validation:** target-mean encoding uses labels from the entire training dataset before the holdout split. The reported MAE may therefore be optimistic. A leakage-safe evaluation would fit the encoder only on training folds (ideally using out-of-fold encodings) and apply it to the holdout without using holdout labels.
+- The numerical imputer is also fitted before the holdout split; preprocessing should be fitted inside the training pipeline for an independent evaluation.
+- The reported MAE is from a single holdout split; no cross-validation or independent external test is provided.
+- Model settings are chosen manually rather than through an automated hyperparameter search.
+- The preprocessing workflow is specific to the competition dataset and may need adaptation elsewhere.
+- The competition data are not redistributed; access and permitted use are governed by Kaggle.
 
 ## Related work
-
-This project complements my other work on applied machine learning, feature engineering, and predictive modeling with Python.
 
 - [GitHub profile and selected projects](https://github.com/lucalullo)
 - [Kaggle profile](https://www.kaggle.com/lucalullo)
 
----
+## Author
 
-**Author:** [Luca Lullo](https://github.com/lucalullo)  
-**Original Kaggle work:** [Used Car Prices](https://www.kaggle.com/code/lucalullo/used-car-prices)
+Created by [Luca Lullo](https://github.com/lucalullo). Original work: [Used Car Prices on Kaggle](https://www.kaggle.com/code/lucalullo/used-car-prices).
