@@ -6,7 +6,7 @@ This Kaggle notebook develops a tabular regression workflow, from cleaning vehic
 
 ![Python](https://img.shields.io/badge/Python-3776AB?logo=python&logoColor=white) ![Jupyter](https://img.shields.io/badge/Jupyter-Notebook-F37626?logo=jupyter&logoColor=white) ![LightGBM](https://img.shields.io/badge/LightGBM-Regression-02569B) [![Kaggle Notebook](https://img.shields.io/badge/Kaggle-Notebook-20BEFF?logo=kaggle&logoColor=white)](https://www.kaggle.com/code/lucalullo/used-car-prices)
 
-[Kaggle notebook](https://www.kaggle.com/code/lucalullo/used-car-prices) · [Explore the notebook](used-car-prices.ipynb) · [GitHub profile](https://github.com/lucalullo)
+[Kaggle notebook](https://www.kaggle.com/code/lucalullo/used-car-prices) · [GitHub repository](https://github.com/lucalullo/used-car-prices)
 
 ## At a glance
 
@@ -37,7 +37,7 @@ The notebook covers:
 
 ## Methodology
 
-```text
+~~~text
 Kaggle train/test data
         |
         v
@@ -64,7 +64,7 @@ Refit on all labeled rows
         |
         v
 Predict test set -> submission.csv
-```
+~~~
 
 ### Implementation details
 
@@ -88,27 +88,27 @@ This value is printed in the archived notebook after an 80/20 holdout evaluation
 
 ## Repository structure
 
-```text
+~~~text
 used-car-prices/
 ├── README.md
 ├── used-car-prices.ipynb
 ├── .gitignore
 └── LICENSE
-```
+~~~
 
 ## Getting started
 
 The reference environment is **Kaggle**. The notebook reads the competition files from:
 
-```text
+~~~text
 /kaggle/input/competitions/playground-series-s4e9/
-```
+~~~
 
 For local execution, install the principal notebook dependencies:
 
-```bash
+~~~bash
 python -m pip install pandas numpy scikit-learn lightgbm matplotlib seaborn jupyter
-```
+~~~
 
 Download the competition train/test CSVs, open `used-car-prices.ipynb`, and update the Kaggle-specific input paths to the local data directory. The notebook writes a `submission.csv` file.
 
@@ -124,9 +124,10 @@ Download the competition train/test CSVs, open `used-car-prices.ipynb`, and upda
 
 ## Related work
 
-- [GitHub profile and selected projects](https://github.com/lucalullo)
-- [Kaggle profile](https://www.kaggle.com/lucalullo)
+This analysis complements my work on tabular machine learning, from-scratch algorithms, and reproducible Python projects.
+
+**[GitHub profile](https://github.com/lucalullo) · [Kaggle profile](https://www.kaggle.com/lucalullo)**
 
 ## Author
 
-Created by [Luca Lullo](https://github.com/lucalullo). Original work: [Used Car Prices on Kaggle](https://www.kaggle.com/code/lucalullo/used-car-prices).
+Created by [Luca Lullo](https://github.com/lucalullo).
